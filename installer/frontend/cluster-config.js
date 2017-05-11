@@ -37,11 +37,9 @@ export const BM_MATCHBOX_CLIENT_KEY = 'matchboxClientKey';
 export const BM_MATCHBOX_HTTP = 'matchboxHTTP';
 export const BM_MATCHBOX_RPC = 'matchboxRPC';
 export const BM_MASTERS = 'masters';
-export const BM_MASTERS_COUNT = 'mastersCount';
 export const BM_OS_TO_USE = 'osToUse';
 export const BM_TECTONIC_DOMAIN = 'tectonicDomain';
 export const BM_WORKERS = 'workers';
-export const BM_WORKERS_COUNT = 'workersCount';
 
 export const CA_CERTIFICATE = 'caCertificate';
 export const CA_PRIVATE_KEY = 'caPrivateKey';
@@ -162,12 +160,8 @@ export const DEFAULT_CLUSTER_CONFIG = {
   [BM_MATCHBOX_CLIENT_KEY]: '',
   [BM_MATCHBOX_HTTP]: '',
   [BM_MATCHBOX_RPC]: '',
-  [BM_MASTERS]: [],
-  [BM_MASTERS_COUNT]: 1,
   [BM_OS_TO_USE]: '',
   [BM_TECTONIC_DOMAIN]: '',
-  [BM_WORKERS]: [],
-  [BM_WORKERS_COUNT]: 1,
   [CA_CERTIFICATE]: '',
   [CA_PRIVATE_KEY]: '',
   [CA_TYPE]: 'self-signed',

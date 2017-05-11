@@ -119,13 +119,14 @@ export const commitToServer = (dryRun=false, retry=false) => (dispatch, getState
   });
 };
 
+const AMI_URL = 'https://stable.release.core-os.net/amd64-usr/current/coreos_production_ami_all.json';
 
 // One-time fetch of AMIs from server, followed by firing appropriate actions
 // Guaranteed not to reject.
 const getAMIs = (dispatch) => {
-  return fetchJSON(`/containerlinux/images/amis`)
+  return fetchJSON(`/proxy?target=${ encodeURIComponent(AMI_URL) }`)
     .then(m => {
-      const awsRegions = m.map(({name}) => {
+      const awsRegions = m.amis.map(({name}) => {
         return {label: name, value: name};
       });
       dispatch({

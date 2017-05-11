@@ -326,7 +326,7 @@ const toValidator = (fields, listValidator) => (value, clusterConfig, oldValue, 
     });
   });
 
-  return _.every(errs, err => _.isEmpty(err)) ? [] : errs;
+  return !_.every(errs, err => _.isEmpty(err)) && errs;
 };
 
 const toDefaultOpts = opts => {
@@ -357,6 +357,7 @@ export class FieldList extends Field {
           const row = {};
           _.keys(fields).forEach(k => row[k] = `${id}.${i}.${k}`);
           const childProps = { row, i, key: i, remove: () => removeField(i) };
+          console.log(JSON.stringify(childProps));
           return React.cloneElement(onlyChild, childProps);
         });
         return React.createElement('div', {}, children);

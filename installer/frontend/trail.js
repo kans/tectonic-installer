@@ -185,14 +185,15 @@ export const sections = new Map([
     clusterTypePage,
   ]],
   ['defineBaremetal', [
+  bmControllersPage,
     bmClusterInfoPage,
+    bmWorkersPage,
     bmHostnamePage,
     certificateAuthorityPage,
     bmMatchboxPage,
     bmCredentialsPage,
     bmNetworkConfigPage,
-    bmControllersPage,
-    bmWorkersPage,
+
     etcdPage,
     bmSshKeysPage,
     usersPage,

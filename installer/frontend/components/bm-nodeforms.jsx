@@ -8,19 +8,24 @@ import { Alert } from './alert';
 import { configActionTypes } from '../actions';
 import { validate } from '../validate';
 import { readFile } from '../readfile';
+import { FieldList, Form } from '../form';
+
 import {
   BM_MASTERS,
-  BM_MASTERS_COUNT,
   BM_WORKERS,
   BM_WORKERS_COUNT,
 } from '../cluster-config';
 
-import { WithClusterConfig, NumberInput, Input } from './ui';
+import {
+  WithClusterConfig,
+  NumberInput,
+  Input,
+  Connect,
+} from './ui';
 
 const TOO_MANY_MASTERS = 9;
 const TOO_MANY_WORKERS = 1000;
 
-const validateMasters = v => validate.int({min: 1, max: TOO_MANY_MASTERS})(v) || validate.isOdd(v);
 const validateWorkers = validate.int({min: 1, max: TOO_MANY_WORKERS});
 
 const countBy = (collection, f) => {
@@ -205,7 +210,7 @@ const NodeTable = ({count, theseNodes, allNodes, label, updateNodes}) => {
       updatedNodes[i] = newNode;
       updateNodes(updatedNodes, count);
     };
-    const startprops = i > 0 ? {} : {autoFocus: true};
+    const startprops = {}; //i > 0 ? {} : {autoFocus: true};
 
     const duplicateMACs = allNodes.filter(n => n.mac && n.mac === node.mac);
     const duplicateNames = allNodes.filter(n => n.name && n.name === node.name);
@@ -279,103 +284,138 @@ class NodeForm extends React.Component {
   }
 }
 
-const CONTROLLERS_FILE = 'CONTROLLERS_FILE';
+// const CONTROLLERS_FILE = 'CONTROLLERS_FILE';
 
-export const BM_Controllers = connect(
-  ({clusterConfig}) => {
-    const masters = clusterConfig[BM_MASTERS];
-    return {
-      theseNodes: masters,
-      allNodes: masters.concat(clusterConfig[BM_WORKERS]),
-      count: parseInt(clusterConfig[BM_MASTERS_COUNT], 10),
-    };
+
+// const validateMasters = v => validate.int({min: 1, max: TOO_MANY_MASTERS})(v) || validate.isOdd(v);
+
+export const mastersField = new FieldList(BM_MASTERS, {
+  fields: {
+    mac: {
+      default: '',
+      // validator: validate.MAC,
+    },
+    host: {
+      default: '',
+      // validator: validate.host,
+    },
   },
-  (dispatch) => {
-    return {
-      updateNodes: (nodes, count) => {
-        dispatch({
-          type: configActionTypes.SET_MASTERS_LIST,
-          payload: {nodes, count},
-        });
-      },
-    };
-  }
-)(({count, theseNodes, allNodes, updateNodes}) => {
-  if (count > TOO_MANY_MASTERS) {
-    count = TOO_MANY_MASTERS;
-  }
-  if (count < 1 || !_.isInteger(count)) {
-    count = 1;
-  }
-  return (
+  validator: nodes => {
+    // return [];
+    const macs = _.map(nodes, t => t.mac);
+    const errors = [];
+    let i = 1;
+    for (let name1 of macs) {
+      for (let name2 of macs.slice(i)) {
+        if (name1 === name2) {
+          errors[i] = {mac: 'MACs must be unique'};
+        }
+        if (i > 9) {
+          errors[i] = {mac: 'Only 9 Masters are allowed'};
+        }
+        i += 1;
+      }
+    }
+    _.each(nodes, (node, index) => {
+      if (node.mac ? !node.host : node.mac) {
+        errors[index] = errors[index] || {};
+        errors[index].host = 'Both fields are required';
+      }
+    });
+    return errors;
+  },
+});
+
+export const mastersForm = new Form('MASTERS', [mastersField]);
+
+const MasterRow = ({ row, remove }) => {
+  console.log(row.mac);
+  return <div className="row" style={{padding: '0 0 20px 0'}}>
+    <div className="col-xs-5" style={{paddingRight: 0}}>
+      <Connect field={row.mac}>
+        <Input placeholder="MAC address" blurry />
+      </Connect>
+    </div>
+
+    <div className="col-xs-6" style={{paddingRight: 0}}>
+      <Connect field={row.host}>
+        <Input placeholder="node.domain.com" blurry />
+      </Connect>
+    </div>
+
+    <div className="col-xs-1">
+      <i className="fa fa-minus-circle list-add-or-subtract pull-right" onClick={remove}></i>
+    </div>
+  </div>;
+};
+
+export const BM_Controllers = props =>
+  <div>
     <div>
-      <div className="form-group">
-        Master nodes run essential cluster services and don't run end-user apps.
-      </div>
-      <div className="form-group">
-        <div className="row">
-          <div className="col-xs-3">
-            <label htmlFor={BM_MASTERS_COUNT}>Masters</label>
-          </div>
-          <div className="col-xs-9">
-            <WithClusterConfig field={BM_MASTERS_COUNT} validator={validateMasters}>
-              <NumberInput
-                id={BM_MASTERS_COUNT}
-                className="wiz-super-short-input"
-                min="1"
-                max={TOO_MANY_MASTERS} />
-            </WithClusterConfig>
-            <p className="text-muted">An odd number of masters is required.</p>
-          </div>
+      Master nodes run essential cluster services and don't run end-user apps.
+      Enter the MAC addresses of the nodes you'd like to use as masters,
+      and the host names you'll use to refer to them.
+    </div>
+    <div className="">
+      <div className="row">
+        <div className="col-xs-5">
+          <label className="text-muted cos-thin-label">Masters</label>
+        </div>
+        <div className="col-xs-6">
+          <label className="text-muted cos-thin-label">Hosts</label>
         </div>
       </div>
-      <div className="form-group">
-        Enter the MAC addresses of the nodes you'd like to use as masters,
-        and the host names you'll use to refer to them.
-      </div>
-      <div className="form-group">
-        <NodeForm count={count}
-                  theseNodes={theseNodes}
-                  allNodes={allNodes}
-                  label="Master"
-                  file={CONTROLLERS_FILE}
-                  updateNodes={updateNodes} />
+
+      <mastersField.Map key="asdf">
+        <MasterRow {...props} />
+      </mastersField.Map>
+
+      <mastersForm.Errors />
+
+      <div className="row">
+        <div className="col-xs-3">
+          <span className="wiz-link" onClick={mastersField.addOnClick}>
+            <i className="fa fa-plus-circle list-add wiz-link"></i>&nbsp; Add More
+          </span>
+        </div>
       </div>
     </div>
-  );
-});
-BM_Controllers.canNavigateForward = ({clusterConfig}) => {
-  if (validateMasters(clusterConfig[BM_MASTERS_COUNT])) {
-    return false;
-  }
-  const masters = clusterConfig[BM_MASTERS];
-  const mastersOkSet = masters.filter((m) => {
-    return m && !validate.MAC(m.mac) && !validate.host(m.name);
-  });
+  </div>;
 
-  if (mastersOkSet.length < parseInt(clusterConfig[BM_MASTERS_COUNT], 10)) {
-    return false;
-  }
+BM_Controllers.canNavigateForward = mastersForm.canNavigateForward;
 
-  // In order to prevent weird lockouts and invalidation at a distance,
-  // the deduplicate validation for controllers and workers isn't
-  // symmetric. In particular, the Controllers form is valid if it
-  // contains duplicates of Worker but not if the masters group has
-  // duplicates within itself.
-  const nameCounts = countBy(masters, n => n.name);
-  const macCounts = countBy(masters, n => n.mac);
-  for (let i = 0; i < masters.length; i++) {
-    const masterI = masters[i];
-    if (nameCounts.get(masterI.name) > 1) {
-      return false;
-    }
-    if (macCounts.get(masterI.mac) > 1) {
-      return false;
-    }
-  }
+// ({clusterConfig}) => {
+//   if (validateMasters(clusterConfig[BM_MASTERS_COUNT])) {
+//     return false;
+//   }
+//   const masters = clusterConfig[BM_MASTERS];
+//   const mastersOkSet = masters.filter((m) => {
+//     return m && !validate.MAC(m.mac) && !validate.host(m.name);
+//   });
 
-  return true;
-};
+//   if (mastersOkSet.length < parseInt(clusterConfig[BM_MASTERS_COUNT], 10)) {
+//     return false;
+//   }
+
+//   // In order to prevent weird lockouts and invalidation at a distance,
+//   // the deduplicate validation for controllers and workers isn't
+//   // symmetric. In particular, the Controllers form is valid if it
+//   // contains duplicates of Worker but not if the masters group has
+//   // duplicates within itself.
+//   const nameCounts = countBy(masters, n => n.name);
+//   const macCounts = countBy(masters, n => n.mac);
+//   for (let i = 0; i < masters.length; i++) {
+//     const masterI = masters[i];
+//     if (nameCounts.get(masterI.name) > 1) {
+//       return false;
+//     }
+//     if (macCounts.get(masterI.mac) > 1) {
+//       return false;
+//     }
+//   }
+
+//   return true;
+// };
 
 const WORKERS_FILE = 'WORKERS_FILE';
 

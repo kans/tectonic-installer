@@ -50,7 +50,7 @@ const dispatchToProps = dispatch => ({
     });
 
     const endpointURL = `http://${matchboxHTTP}/assets/coreos`;
-    return fetch(`/containerlinux/images/matchbox?endpoint=${encodeURIComponent(endpointURL)}`)
+    return fetch(`/images?endpoint=${encodeURIComponent(endpointURL)}`)
     .then(response => {
       if (response.ok) {
         return response.json();
