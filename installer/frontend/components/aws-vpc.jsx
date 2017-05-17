@@ -36,6 +36,7 @@ import {
   AWS_REGION,
   AWS_REGION_FORM,
   AWS_SUBNETS,
+  AWS_USE_EXISTING_HOSTED_ZONE,
   AWS_VPC_CIDR,
   AWS_VPC_ID,
   AWS_VPC_FORM,
@@ -47,9 +48,12 @@ import {
   POD_CIDR,
   SERVICE_CIDR,
   toVPCSubnetID,
+  splitDNS_on,
+  splitDNSOptions,
 } from '../cluster-config';
 
 const vpcInfoForm = new Form(AWS_VPC_FORM, [
+  new Field(AWS_USE_EXISTING_HOSTED_ZONE, {default: splitDNS_on}),
   new Field(AWS_CREATE_VPC, {
     default: 'VPC_CREATE',
   }),
@@ -168,6 +172,8 @@ const stateToProps = ({aws, clusterConfig}) => {
     podCIDR: clusterConfig[POD_CIDR],
     serviceCIDR: clusterConfig[SERVICE_CIDR],
     advanced: clusterConfig[AWS_ADVANCED_NETWORKING],
+    privateZone: _.get(clusterConfig, ['extra', AWS_HOSTED_ZONE_ID, 'privateZones', clusterConfig[AWS_HOSTED_ZONE_ID]]),
+    privateZone1: ['extra', AWS_HOSTED_ZONE_ID, 'privateZones', clusterConfig[AWS_HOSTED_ZONE_ID]],
   };
 };
 
@@ -230,7 +236,7 @@ class AWS_VPCComponent extends React.Component {
   }
 
   render () {
-    const { availableVpcs, awsCreateVpc, availableVpcSubnets, awsVpcId, clusterName, clusterSubdomain, internalCluster, advanced } = this.props;
+    const { availableVpcs, awsCreateVpc, availableVpcSubnets, awsVpcId, clusterName, clusterSubdomain, internalCluster, advanced, privateZone } = this.props;
 
     let controllerSubnets;
     let workerSubnets;
@@ -306,6 +312,27 @@ class AWS_VPCComponent extends React.Component {
           </div>
         </div>
       </div>
+      { !privateZone &&
+        <div className="row form-group">
+          <div className="col-xs-3">
+            <label>
+              Split DNS
+            </label>
+          </div>
+          <div className="col-xs-9">
+            <Connect field={AWS_USE_EXISTING_HOSTED_ZONE}>
+              <Select>
+                {_.map(splitDNSOptions, ((k, v) => <option value={v} key={k}>{k}</option>))}
+              </Select>
+            </Connect>
+            <p className="text-muted wiz-help-text">
+              See AWS <a href="http://docs.aws.amazon.com/Route53/latest/DeveloperGuide/hosted-zones-private.html"
+                target="_blank">Split-View DNS documentation&nbsp;<i className="fa fa-external-link" /></a>
+            </p>
+          </div>
+        </div>
+      }
+
       <vpcInfoForm.Errors/>
       <AWS_DomainValidation />
       <hr />
