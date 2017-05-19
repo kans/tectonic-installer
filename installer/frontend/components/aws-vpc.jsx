@@ -290,6 +290,50 @@ class AWS_VPCComponent extends React.Component {
     }
 
     return <div>
+      <div className="row form-group">
+        <div className="col-xs-12">
+          <div className="wiz-radio-group">
+            <div className="radio wiz-radio-group__radio">
+              <label>
+                <Connect field={AWS_CREATE_VPC}>
+                  <Radio name={AWS_CREATE_VPC} value="VPC_CREATE" />
+                </Connect>
+                Create a new VPC (Public)
+              </label>&nbsp;(default)
+              <p className="text-muted wiz-help-text">Launch into a new VPC with subnet defaults.</p>
+            </div>
+          </div>
+          <div className="wiz-radio-group">
+            <div className="radio wiz-radio-group__radio">
+              <label>
+                <Connect field={AWS_CREATE_VPC}>
+                  <Radio name={AWS_CREATE_VPC} value="VPC_PUBLIC" />
+                </Connect>
+                Use an existing VPC (Public)
+              </label>
+              <p className="text-muted wiz-help-text">
+                Useful for installing beside existing resources. Your VPC must be <a href="https://coreos.com/tectonic/docs/latest/install/aws/requirements.html#using-an-existing-vpc" onClick={TectonicGA.sendDocsEvent} target="_blank">set up correctly</a>.
+              </p>
+            </div>
+          </div>
+          <div className="wiz-radio-group">
+            <div className="radio wiz-radio-group__radio">
+              <label>
+                <Connect field={AWS_CREATE_VPC}>
+                  <Radio name={AWS_CREATE_VPC} value="VPC_PRIVATE" />
+                </Connect>
+                Use an existing VPC (Private)
+              </label>
+              <p className="text-muted wiz-help-text">
+                Useful for installing beside existing resources. Your VPC must be <a href="https://coreos.com/tectonic/docs/latest/install/aws/requirements.html#using-an-existing-vpc" onClick={TectonicGA.sendDocsEvent} target="_blank">set up correctly</a>.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <hr/>
+
       <p className="text-muted">
         Please select a Route 53 hosted zone. For more information, see AWS Route 53 docs on <a target="_blank" href="http://docs.aws.amazon.com/Route53/latest/DeveloperGuide/AboutHZWorkingWith.html">Working with Hosted Zones</a>.
       </p>
@@ -337,49 +381,6 @@ class AWS_VPCComponent extends React.Component {
       <AWS_DomainValidation />
       <hr />
 
-      <div className="row form-group">
-        <div className="col-xs-12">
-          <div className="wiz-radio-group">
-            <div className="radio wiz-radio-group__radio">
-              <label>
-                <Connect field={AWS_CREATE_VPC}>
-                  <Radio name={AWS_CREATE_VPC} value="VPC_CREATE" />
-                </Connect>
-                Create a new VPC (Public)
-              </label>&nbsp;(default)
-              <p className="text-muted wiz-help-text">Launch into a new VPC with subnet defaults.</p>
-            </div>
-          </div>
-          <div className="wiz-radio-group">
-            <div className="radio wiz-radio-group__radio">
-              <label>
-                <Connect field={AWS_CREATE_VPC}>
-                  <Radio name={AWS_CREATE_VPC} value="VPC_PUBLIC" />
-                </Connect>
-                Use an existing VPC (Public)
-              </label>
-              <p className="text-muted wiz-help-text">
-                Useful for installing beside existing resources. Your VPC must be <a href="https://coreos.com/tectonic/docs/latest/install/aws/requirements.html#using-an-existing-vpc" onClick={TectonicGA.sendDocsEvent} target="_blank">set up correctly</a>.
-              </p>
-            </div>
-          </div>
-          <div className="wiz-radio-group">
-            <div className="radio wiz-radio-group__radio">
-              <label>
-                <Connect field={AWS_CREATE_VPC}>
-                  <Radio name={AWS_CREATE_VPC} value="VPC_PRIVATE" />
-                </Connect>
-                Use an existing VPC (Private)
-              </label>
-              <p className="text-muted wiz-help-text">
-                Useful for installing beside existing resources. Your VPC must be <a href="https://coreos.com/tectonic/docs/latest/install/aws/requirements.html#using-an-existing-vpc" onClick={TectonicGA.sendDocsEvent} target="_blank">set up correctly</a>.
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <hr />
       { awsCreateVpc &&
       <Connect field={AWS_ADVANCED_NETWORKING}>
         <ToggleButton className="btn btn-default">Advanced Settings</ToggleButton>
