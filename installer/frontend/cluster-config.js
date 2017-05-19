@@ -93,8 +93,8 @@ export const splitDNS_on = "on";
 export const splitDNS_off = "off";
 
 export const splitDNSOptions = {
-  [splitDNS_on]: "Use public and private zone.",
-  [splitDNS_off]: "Use only the public zone.",
+  [splitDNS_on]: "Use both a public and private zone (default).",
+  [splitDNS_off]: "Only use a public zone.",
 };
 
 export const toVPCSubnet = (region, subnets, deselected) => {

@@ -370,6 +370,7 @@ class AWS_VPCComponent extends React.Component {
               </Select>
             </Connect>
             <p className="text-muted wiz-help-text">
+              By default, a private zone is used for internal traffic.
               See AWS <a href="http://docs.aws.amazon.com/Route53/latest/DeveloperGuide/hosted-zones-private.html"
                 target="_blank">Split-View DNS documentation&nbsp;<i className="fa fa-external-link" /></a>
             </p>
