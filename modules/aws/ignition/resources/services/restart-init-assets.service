@@ -1,0 +1,14 @@
+[Unit]
+Description=Restarts the Download of Tectonic Assets
+ConditionPathExists=!/opt/tectonic/init_assets.done
+
+[Service]
+User=root
+Group=root
+Restart=always
+RestartSec=2
+ExecStartPre=/usr/bin/systemctl is-failed init-assets.service
+ExecStart=/usr/bin/systemctl restart init-assets.service
+
+[Install]
+WantedBy=multi-user.target

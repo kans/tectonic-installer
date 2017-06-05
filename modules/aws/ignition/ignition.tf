@@ -12,6 +12,7 @@ data "ignition_config" "main" {
     "${data.ignition_systemd_unit.kubelet.id}",
     "${data.ignition_systemd_unit.kubelet-env.id}",
     "${data.ignition_systemd_unit.init-assets.id}",
+    "${data.ignition_systemd_unit.restart-init-assets.id}",
     "${data.ignition_systemd_unit.bootkube.id}",
     "${data.ignition_systemd_unit.tectonic.id}",
   ]
@@ -124,6 +125,11 @@ data "ignition_systemd_unit" "init-assets" {
   name    = "init-assets.service"
   enable  = "${var.assets_s3_location != "" ? true : false}"
   content = "${file("${path.module}/resources/services/init-assets.service")}"
+}
+
+data "ignition_systemd_unit" "restart-init-assets" {
+  name    = "restart-init-assets.service"
+  content = "${file("${path.module}/resources/services/restart-init-assets.service")}"
 }
 
 data "ignition_systemd_unit" "bootkube" {
